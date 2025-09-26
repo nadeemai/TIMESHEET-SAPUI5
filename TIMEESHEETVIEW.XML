@@ -1,1 +1,161 @@
+<!-- view.xml -->
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    controllerName="com.view1.project1.controller.View1"
+    height="100%"
+    displayBlock="true">
+    
+    <Page id="_IDGenPage1" showHeader="false">
+        <content>
+            <!-- Top Bar -->
+            <Toolbar id="_IDGenToolbar" class="topToolbar">
+                <Image id="_IDGenImage" src="path/to/logo.png" width="2rem" height="2rem" class="logo" />
+                <Title id="_IDGenTitle" text="Cliensy" level="H3" class="title" />
+                <ToolbarSpacer id="_IDGenToolbarSpacer" />
+                <SearchField id="_IDGenSearchField" placeholder="Search anything" width="20rem" class="searchField" />
+                <ToolbarSpacer id="_IDGenToolbarSpacer1" />
+                <Button id="_IDGenButton" text="Start Timer" type="Success" class="startTimer" press="onStartTimer" />
+                <Avatar id="_IDGenAvatar" src="path/to/user.png" displaySize="XS" class="userAvatar" />
+                <Text id="_IDGenText" text="Thomas Fletcher" class="userName" />
+                <core:Icon id="_IDGenIcon" src="sap-icon://navigation-down-arrow" size="1rem" class="dropdownIcon" />
+            </Toolbar>
+            
+            <!-- Main Layout -->
+            <layout:HorizontalLayout id="_IDGenHorizontalLayoutParent">
+                <!-- Sidebar -->
+                <layout:VerticalLayout id="_IDGenVerticalLayout" width="200px" class="sidebar">
+                    <Button id="_IDGenButton1" text="Add New" type="Transparent" class="addNew" icon="sap-icon://add" press="onAddNew" />
+                    <List id="_IDGenList" class="sidebarList">
+                        <StandardListItem id="_IDGenStandardListItem" title="Dashboard" icon="sap-icon://home" type="Active" press="onMenuItemPress" selected="true" />
+                        <StandardListItem id="_IDGenStandardListItem1" title="Tasks" icon="sap-icon://task" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem2" title="Projects" icon="sap-icon://projector" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem3" title="Clients" icon="sap-icon://group" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem4" title="Reports" icon="sap-icon://business-objects-experience" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem5" title="Tools" icon="sap-icon://wrench" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem6" title="Contracts" icon="sap-icon://official-service" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem7" title="Proposals" icon="sap-icon://document" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem8" title="Time Tracking" icon="sap-icon://time-entry-request" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem9" title="Client Portal" icon="sap-icon://internet-browser" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem10" title="Invoices" icon="sap-icon://sales-document" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem11" title="Income" icon="sap-icon://money-bills" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem12" title="Expenses" icon="sap-icon://expense-report" type="Active" press="onMenuItemPress" />
+                        <StandardListItem id="_IDGenStandardListItem13" title="Payment" icon="sap-icon://credit-card" type="Active" press="onMenuItemPress" />
+                    </List>
+                </layout:VerticalLayout>
+                
+                <!-- Main Content -->
+                <layout:VerticalLayout id="_IDGenVerticalLayout1" class="mainContent" width="calc(100% - 200px)">
+                    <!-- Project Header -->
+                    <layout:HorizontalLayout id="_IDGenHorizontalLayout" class="projectHeader">
+                        <VBox id="_IDGenVBox">
+                            <Title id="_IDGenTitle1" text="Project / NAH-0010" level="H4" class="projectTitle" />
+                            <HBox id="_IDGenHBox">
+                                <Avatar id="_IDGenAvatar1" src="path/to/projectManagerAvatar.png" displaySize="M" class="managerAvatar" />
+                                <VBox id="_IDGenVBox1" class="sapUiSmallMarginBegin">
+                                    <Text id="_IDGenText1" text="Nahid Ahmed" class="managerName" />
+                                    <Text id="_IDGenText2" text="Project Manager" class="managerRole" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                        <ToolbarSpacer id="_IDGenToolbarSpacer2" />
+                        <Label id="_IDGenLabel" text="Budget" class="budgetLabel" />
+                        <ProgressIndicator id="_IDGenProgressIndicator" percentValue="70" displayValue="70%" state="Information" width="150px" class="budgetProgress" />
+                        <Select id="_IDGenSelect" selectedKey="In Progress" class="statusSelect">
+                            <core:Item id="_IDGenItem" key="In Progress" text="In Progress" />
+                        </Select>
+                    </layout:HorizontalLayout>
+                    
+                    <!-- Project Name and Actions -->
+                    <HBox id="_IDGenHBox1" class="projectNameActions">
+                        <Title id="_IDGenTitle2" text="CRM WebUI" level="H2" class="crmTitle" />
+                        <Button id="_IDGenButton2" text="Add Tag +" type="Transparent" class="addTag" press="onAddTag" />
+                        <ToolbarSpacer id="_IDGenToolbarSpacer3" />
+                        <Button id="_IDGenButton3" text="Invoice Unbilled Hours" type="Transparent" class="invoiceButton" press="onInvoiceUnbilled" />
+                        <Button id="_IDGenButton4" text="Add Time" type="Success" class="addTime" press="onAddTime" />
+                    </HBox>
+                    
+                    <!-- Tabs with IconToolbar -->
+                    <IconTabBar id="_IDGenIconTabBar" class="tabs" selectedKey="Time" select="onTabSelect">
+                        <items>
+                            <IconTabFilter id="_IDGenIconTabFilter" key="Overview" text="Overview" />
+                            <IconTabFilter id="_IDGenIconTabFilter1" key="Task" text="Task" />
+                            <IconTabFilter id="_IDGenIconTabFilter2" key="Time" text="Time" />
+                            <IconTabFilter id="_IDGenIconTabFilter3" key="Billing" text="Billing" />
+                            <IconTabFilter id="_IDGenIconTabFilter4" key="Expenses" text="Expenses" />
+                            <IconTabFilter id="_IDGenIconTabFilter5" key="Insights" text="Insights" />
+                        </items>
+                    </IconTabBar>
+                    
+                    <!-- Tiles -->
+                    <layout:HorizontalLayout id="_IDGenHorizontalLayout1" class="tilesContainer">
+                        <GenericTile id="_IDGenGenericTile" class="tile totalHoursTile" header="Working Days" subheader="24 hours" press="onTilePress">
+                            <tileContent>
+                                <TileContent id="_IDGenTileContent">
+                                    <content>
+                                        <core:Icon id="_IDGenIcon2" src="sap-icon://time-account" size="2rem" color="Positive" />
+                                    </content>
+                                </TileContent>
+                            </tileContent>
+                        </GenericTile>
+                        <GenericTile id="_IDGenGenericTile1" class="tile billableHoursTile" header="Total Member" subheader="18 Memebr" press="onTilePress">
+                            <tileContent>
+                                <TileContent id="_IDGenTileContent1">
+                                    <content>
+                                        <core:Icon id="_IDGenIcon3" src="sap-icon://bar-chart" size="2rem" color="Information" />
+                                    </content>
+                                </TileContent>
+                            </tileContent>
+                        </GenericTile>
+                        <GenericTile id="_IDGenGenericTile2" class="tile unbilledHoursTile" header="Total Hours" subheader="8 Hours" press="onTilePress">
+                            <tileContent>
+                                <TileContent id="_IDGenTileContent2">
+                                    <content>
+                                        <core:Icon id="_IDGenIcon4" src="sap-icon://bar-chart" size="2rem" color="Critical" />
+                                    </content>
+                                </TileContent>
+                            </tileContent>
+                        </GenericTile>
+                    </layout:HorizontalLayout>
+                    
+                    <!-- Table -->
+                    <Table id="timesheetTable" items="{/timesheets}" class="timesheetTable">
+                        <columns>
+                            <Column id="_IDGenColumn"><header><Label id="_IDGenLabel1" text="Date" /></header></Column>
+                            <Column id="_IDGenColumn1"><header><Label id="_IDGenLabel2" text="Member" /></header></Column>
+                            <Column id="_IDGenColumn2"><header><Label id="_IDGenLabel3" text="Project" /></header></Column>
+                            <Column id="_IDGenColumn3"><header><Label id="_IDGenLabel4" text="Role" /></header></Column>
+                            <Column id="_IDGenColumn4"><header><Label id="_IDGenLabel5" text="Current Task" /></header></Column>
+                            <Column id="_IDGenColumn5"><header><Label id="_IDGenLabel6" text="Working Status" /></header></Column>
+                            <Column id="_IDGenColumn6"><header><Label id="_IDGenLabel7" text="Working Hours" /></header></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem id="_IDGenColumnListItem">
+                                <cells>
+                                    <Text id="_IDGenText3" text="{date}" />
+                                    <Text id="_IDGenText4" text="{member}" />
+                                    <Text id="_IDGenText5" text="{task}" />
+                                    <Text id="_IDGenText6" text="{project}" />
+                                    <Text id="_IDGenText7" text="{billing}" />
+                                    <ObjectStatus id="_IDGenObjectStatus" text="{billingStatus}" state="{= ${billingStatus} === 'Draft' ? 'Error' : ${billingStatus} === 'Pending' ? 'Warning' : 'Information' }" />
+                                    <Text id="_IDGenText8" text="{hours}" />
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                    
+                    <!-- Pagination -->
+                    <HBox id="_IDGenHBox3" class="pagination">
+                        <Text id="_IDGenText9" text="Page 1 of 10" />
+                        <ToolbarSpacer id="_IDGenToolbarSpacer4" />
+                        <Button id="_IDGenButton5" text="Previous" type="Transparent" press="onPreviousPage" />
+                        <Button id="_IDGenButton6" text="Next" type="Transparent" press="onNextPage" />
+                    </HBox>
+                </layout:VerticalLayout>
+            </layout:HorizontalLayout>
+        </content>
+    </Page>
 
+</mvc:View>
