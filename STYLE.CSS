@@ -1,1 +1,227 @@
+/* Enter your custom styles here */
 
+/* style.css */
+
+/* General Styles */
+.sapMPage {
+    background-color: #f6f6f9;
+}
+
+/* Top Toolbar */
+.topToolbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0.5rem 1rem;
+}
+
+.logo {
+    margin-right: 0.5rem;
+}
+
+.title {
+    color: #333333;
+}
+
+.searchField {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.startTimer {
+    margin-left: 1rem;
+}
+
+.userAvatar {
+    margin-left: 1rem;
+}
+
+.userName {
+    margin-left: 0.5rem;
+    color: #333333;
+}
+
+.dropdownIcon {
+    margin-left: 0.5rem;
+    color: #666666;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #ffffff;
+    padding: 1rem;
+    border-right: 1px solid #e0e0e0;
+}
+
+.addNew {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.sidebarList .sapMSLI {
+    border-bottom: none;
+}
+
+.sidebarList .sapMSLITitle {
+    color: #333333;
+}
+
+.sidebarList .sapMSLIIcon {
+    color: #666666;
+}
+
+/* Main Content */
+.mainContent {
+    padding: 1rem;
+}
+
+/* Project Header */
+.projectHeader {
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.projectTitle {
+    color: #666666;
+}
+
+.managerAvatar {
+    background-color: #f0f0f0;
+}
+
+.managerName {
+    font-weight: bold;
+    color: #333333;
+}
+
+.managerRole {
+    color: #666666;
+}
+
+.budgetLabel {
+    color: #666666;
+    margin-right: 0.5rem;
+}
+
+.budgetProgress {
+    margin-right: 1rem;
+}
+
+.statusSelect {
+    background-color: #e6e6ff;
+    color: #4d4dff;
+    border-radius: 4px;
+}
+
+/* Project Name and Actions */
+.projectNameActions {
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.crmTitle {
+    color: #333333;
+}
+
+.addTag {
+    margin-left: 1rem;
+    color: #666666;
+}
+
+.invoiceButton {
+    color: #666666;
+}
+
+.addTime {
+    margin-left: 1rem;
+}
+
+/* Tabs */
+.tabs {
+    margin-bottom: 1rem;
+}
+
+.tabs .sapMSegBBtnSelected {
+    background-color: #f0f0f0;
+}
+
+/* Tiles Container */
+.tilesContainer {
+    margin-bottom: 1rem;
+}
+
+.tile {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    padding: 1rem;
+    margin-right: 1rem;
+}
+
+.totalHoursTile {
+    background-color: #e6ffe6;
+}
+
+.billableHoursTile {
+    background-color: #f2e6ff;
+}
+
+.unbilledHoursTile {
+    background-color: #e6f2ff;
+}
+
+.unbilledAmountTile {
+    background-color: #ffe6e6;
+    margin-right: 0;
+}
+
+.tile .sapMGTHeader {
+    font-size: 1.2rem;
+    color: #333333;
+}
+
+.tile .sapMGTSubHdr {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333333;
+}
+
+.tile .sapMImg {
+    color: #666666;
+    font-size: 2rem;
+}
+
+/* Timesheet Table */
+.timesheetTable {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timesheetTable .sapMColumnHeader {
+    background-color: #f0f0f0;
+    color: #666666;
+}
+
+.timesheetTable .sapMObjectStatusError {
+    background-color: #ffe6e6;
+    color: #cc0000;
+    border-radius: 12px;
+}
+
+.timesheetTable .sapMObjectStatusWarning {
+    background-color: #e6ffe6;
+    color: #009900;
+    border-radius: 12px;
+}
+
+.timesheetTable .sapMObjectStatusInformation {
+    background-color: #e6e6ff;
+    color: #4d4dff;
+    border-radius: 12px;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 1rem;
+    color: #666666;
+}
