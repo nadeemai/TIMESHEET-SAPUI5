@@ -1,3 +1,884 @@
+UPDATED CODE 6
+
+sap.ui.define([
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/model/json/JSONModel",
+    "sap/m/MessageToast",
+    "sap/m/Dialog",
+    "sap/m/Button",
+    "sap/m/Input",
+    "sap/m/TextArea",
+    "sap/m/DatePicker",
+    "sap/m/TimePicker",
+    "sap/ui/core/Item",
+    "sap/ui/core/format/DateFormat",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+    "sap/ui/core/date/UI5Date",
+    "sap/ui/core/Fragment",
+    "sap/m/Token",
+    "sap/m/SuggestionItem",
+    "sap/m/MultiInput",
+    "sap/m/VBox",
+    "sap/m/HBox",
+    "sap/m/Text",
+    "sap/m/Label",
+    "sap/ui/unified/CalendarAppointment"
+], function(Controller, JSONModel, MessageToast, Dialog, Button, Input, TextArea, DatePicker, TimePicker, Item, DateFormat, Filter, FilterOperator, UI5Date, Fragment, Token, SuggestionItem, MultiInput, VBox, HBox, Text, Label, CalendarAppointment) {
+    "use strict";
+
+    return Controller.extend("com.view1.project1.controller.View1", {
+        roles: {
+            manager: "manager",
+            employee: "employee"
+        },
+        
+        onInit: function() {
+            var oData = this._generateSampleData();
+            var oModel = new JSONModel(oData);
+            this.getView().setModel(oModel);
+            
+            // Store original data for filtering
+            this._oOriginalPeopleData = JSON.parse(JSON.stringify(oData.people));
+            this._sCurrentPersonKey = "all"; // Track current person selection
+            
+            this._updateCurrentIntervalText();
+            this._populatePersonSelect();
+            this._updateMiniCalendar();
+            this._updateTimesheetSummary();
+            
+            var oAttendeesModel = new JSONModel({
+                value: [
+                    { name: "Portal Admin", email: "donotreply@risedx.com", status: "Free" },
+                    { name: "Pushpak Jha", email: "pushpak.jha@risedx.com", status: "Busy" }
+                ]
+            });
+            this.getView().setModel(oAttendeesModel, "attendees");
+            
+            var today = new Date();
+            today.setDate(1); // Start from first day of month for month view
+            this.byId("planningCalendar").setStartDate(today);
+            
+            this._applyTeamsMonthViewStyling();
+        },
+
+        onAfterRendering: function() {
+            this._applyTeamsMonthViewStyling();
+            var oPlanningCalendar = this.byId("planningCalendar");
+            if (oPlanningCalendar) {
+                setTimeout(function() {
+                    oPlanningCalendar.rerender();
+                }, 100);
+            }
+        },
+        
+        _generateSampleData: function() {
+            var today = new Date();
+            var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            
+            return {
+                startDate: startOfMonth,
+                calendars: [
+                    { name: "My Calendar", selected: true },
+                    { name: "Team Schedule", selected: true },
+                    { name: "Holidays", selected: false },
+                    { name: "Personal", selected: true }
+                ],
+                people: [
+                    { name: "Abhishek Jha", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Abhishek Jha", "Design Project", startOfMonth) },
+                    { name: "Aman Anand", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Aman Anand", "Development", startOfMonth) },
+                    { name: "Ayushi Khanokar", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Ayushi Khanokar", "Testing", startOfMonth) },
+                    { name: "Jayant Kumar", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Jayant Kumar", "Development", startOfMonth) },
+                    { name: "Mohd Aakib", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Mohd Aakib", "Design", startOfMonth) },
+                    { name: "Mohammed Nadeem Abbas", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Mohammed Nadeem Abbas", "Development", startOfMonth) },
+                    { name: "Pushkar Kumar Jha", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Pushkar Kumar Jha", "Testing", startOfMonth) },
+                    { name: "Pushpak Jha", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Pushpak Jha", "Design", startOfMonth) },
+                    { name: "Shivam Shrivastav", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Shivam Shrivastav", "Development", startOfMonth) },
+                    { name: "Suraj Mishra", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Suraj Mishra", "Project Management", startOfMonth) },
+                    { name: "Swarupa Patil", role: "Project tester", appointments: this._generateMonthAppointmentsForPerson("Swarupa Patil", "Design", startOfMonth) },
+                    { name: "Tanu Singh", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Tanu Singh", "Testing", startOfMonth) },
+                    { name: "Vikash Ojha", role: "Team Member", appointments: this._generateMonthAppointmentsForPerson("Vikash Ojha", "Development", startOfMonth) },
+                    { name: "Vikrant Raj", role: "Project Manager", appointments: this._generateMonthAppointmentsForPerson("Vikrant Raj", "Design", startOfMonth) },
+                    { name: "YK Yugal Kishore", role: "Team Lead", appointments: this._generateMonthAppointmentsForPerson("YK Yugal Kishore", "Management", startOfMonth) }
+                ]
+            };
+        },
+        
+        _generateMonthAppointmentsForPerson: function(personName, project, startOfMonth) {
+            var appointments = [];
+            var daysInMonth = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0).getDate();
+            
+            // Generate appointments for each day in the month
+            for (var day = 1; day <= daysInMonth; day++) {
+                var currentDate = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day);
+                var dayOfWeek = currentDate.getDay();
+                
+                // Skip weekends (Saturday = 6, Sunday = 0)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    var startHour = 9;
+                    var hoursPerDay = this._getRandomHours(6, 9); // Random hours between 6-9 to test color coding
+                    var endHour = startHour + hoursPerDay;
+                    
+                    // Main work appointment
+                    appointments.push({
+                        id: this._generateAppointmentId(),
+                        start: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day, startHour, 0),
+                        end: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day, endHour, 0),
+                        title: project + " - " + this._getTaskForDay(day),
+                        info: personName + " - " + hoursPerDay + "h work",
+                        type: "Type0" + (day % 5 + 1),
+                        tentative: false,
+                        color: this._getColorForHours(hoursPerDay, personName),
+                        icon: "sap-icon://workflow-tasks"
+                    });
+                    
+                    // Project management task (shorter appointment)
+                    appointments.push({
+                        id: this._generateAppointmentId(),
+                        start: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day, 10, 0),
+                        end: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day, 11, 0),
+                        title: "Project Management",
+                        info: personName + " - Daily tasks",
+                        type: "Type07",
+                        tentative: false,
+                        color: this._getColorForHours(1, personName), // 1 hour for this appointment
+                        icon: "sap-icon://project-definition"
+                    });
+                    
+                    // Client meeting on specific days (like in your image)
+                    if (day % 7 === 2) { // Every Tuesday
+                        appointments.push({
+                            id: this._generateAppointmentId(),
+                            start: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day, 14, 0),
+                            end: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), day, 15, 0),
+                            title: "Client Meeting",
+                            info: personName + " - Weekly sync",
+                            type: "Type09",
+                            tentative: false,
+                            color: this._getColorForHours(1, personName), // 1 hour for this appointment
+                            icon: "sap-icon://meeting-room"
+                        });
+                    }
+                }
+            }
+            
+            return appointments;
+        },
+        
+        _generateAppointmentId: function() {
+            return 'appt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        },
+        
+        _getRandomHours: function(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+        
+        _formatTime: function(oDate) {
+            return DateFormat.getTimeInstance({pattern: "h a"}).format(oDate);
+        },
+        
+        _getTaskForDay: function(dayIndex) {
+            var tasks = ["Design system", "Mockup designs", "User testing", "Documentation", "Client meeting", "Code review", "Planning", "Development", "Testing", "Deployment"];
+            return tasks[dayIndex % tasks.length];
+        },
+        
+        _addDays: function(date, days, hours, minutes) {
+            var newDate = new Date(date);
+            newDate.setDate(newDate.getDate() + days);
+            newDate.setHours(hours, minutes, 0, 0);
+            return newDate;
+        },
+        
+        // Updated color coding logic
+        _getColorForHours: function(hours, personName) {
+            // Check if person is a manager
+            var isManager = this._isManager(personName);
+            
+            // For ALL employees (including managers when working as employees)
+            // Red for less than 8 hours of work
+            if (hours < 8) {
+                return "#FF0000"; // Red for less than 8 hours
+            } else if (hours >= 8) {
+                return "#2B7D2B"; // Green for 8+ hours
+            } else {
+                return "#6A6A6A"; // Grey for any other case
+            }
+        },
+        
+        // Helper function to check if a person is a manager
+        _isManager: function(personName) {
+            var managers = ["Vikrant Raj", "YK Yugal Kishore"]; // Add other managers as needed
+            return managers.includes(personName);
+        },
+        
+        _populatePersonSelect: function() {
+            var oPersonSelect = this.byId("personSelect");
+            oPersonSelect.removeAllItems();
+            oPersonSelect.addItem(new Item({ key: "all", text: "All Members" }));
+            
+            this._oOriginalPeopleData.forEach(function(oPerson) {
+                oPersonSelect.addItem(new Item({ key: oPerson.name, text: oPerson.name }));
+            });
+            
+            // Set the current selection
+            oPersonSelect.setSelectedKey(this._sCurrentPersonKey);
+        },
+        
+        _updateCurrentIntervalText: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            var oStartDate = oPlanningCalendar.getStartDate();
+            var sViewKey = oPlanningCalendar.getViewKey();
+            
+            if (sViewKey === "Day") {
+                // this.byId("currentInterval").setText(DateFormat.getDateInstance({pattern: "EEEE, MMMM d, yyyy"}).format(oStartDate));
+                // this.byId("currentIntervalMain").setText(DateFormat.getDateInstance({pattern: "EEEE, MMMM d, yyyy"}).format(oStartDate));
+            } else if (sViewKey === "Week") {
+                var oEndDate = new Date(oStartDate);
+                oEndDate.setDate(oStartDate.getDate() + 6);
+                // this.byId("currentInterval").setText(DateFormat.getDateInstance({pattern: "MMM d"}).format(oStartDate) + " - " + DateFormat.getDateInstance({pattern: "MMM d, yyyy"}).format(oEndDate));
+                // this.byId("currentIntervalMain").setText(DateFormat.getDateInstance({pattern: "MMM d"}).format(oStartDate) + " - " + DateFormat.getDateInstance({pattern: "MMM d, yyyy"}).format(oEndDate));
+            } else if (sViewKey === "Month") {
+                // this.byId("currentInterval").setText(DateFormat.getDateInstance({pattern: "MMMM yyyy"}).format(oStartDate));
+                // this.byId("currentIntervalMain").setText(DateFormat.getDateInstance({pattern: "MMMM yyyy"}).format(oStartDate));
+            }
+        },
+        
+        _updateMiniCalendar: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            var oStartDate = oPlanningCalendar.getStartDate();
+            // if (this.byId("miniCalendar")) {
+            //     this.byId("miniCalendar").setSelectedDate(oStartDate);
+            // }
+        },
+        
+        _updateTimesheetSummary: function() {
+            var oModel = this.getView().getModel();
+            var aPeople = oModel.getProperty("/people");
+            var iBillableHours = 0, iNonBillableHours = 0;
+            
+            aPeople.forEach(function(oPerson) {
+                oPerson.appointments.forEach(function(oAppointment) {
+                    var hours = (new Date(oAppointment.end) - new Date(oAppointment.start)) / (1000 * 60 * 60);
+                    if (oAppointment.title.includes("Project Management") || oAppointment.title.includes("Client Meeting")) {
+                        iNonBillableHours += hours;
+                    } else {
+                        iBillableHours += hours;
+                    }
+                });
+            });
+            
+            var billableHours = Math.floor(iBillableHours);
+            var billableMinutes = Math.round((iBillableHours - billableHours) * 60);
+            var nonBillableHours = Math.floor(iNonBillableHours);
+            var nonBillableMinutes = Math.round((iNonBillableHours - nonBillableHours) * 60);
+            
+            this.byId("billableText").setText("Billable time: " + billableHours + "h " + billableMinutes + "m");
+            this.byId("nonBillableText").setText("Non-billable: " + nonBillableHours + "h " + nonBillableMinutes + "m");
+        },
+        
+        _applyTeamsMonthViewStyling: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            // Remove all styling classes first
+            oPlanningCalendar.removeStyleClass("teams-month-view");
+            oPlanningCalendar.removeStyleClass("teams-week-view");
+            oPlanningCalendar.removeStyleClass("teams-day-view");
+            
+            // Add appropriate styling based on current view
+            if (oPlanningCalendar.getViewKey() === "Month") {
+                oPlanningCalendar.addStyleClass("teams-month-view");
+            } else if (oPlanningCalendar.getViewKey() === "Week") {
+                oPlanningCalendar.addStyleClass("teams-week-view");
+            } else {
+                oPlanningCalendar.addStyleClass("teams-day-view");
+            }
+        },
+        
+        getUserRole: function() {
+            return this.roles.manager;
+        },
+        
+        onTodayPress: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            var today = new Date();
+            
+            if (oPlanningCalendar.getViewKey() === "Month") {
+                today.setDate(1); // Start from first day of month
+            }
+            
+            oPlanningCalendar.setStartDate(today);
+            this.getView().getModel().setProperty("/startDate", today);
+            
+            // Update appointments for the new month if in month view
+            if (oPlanningCalendar.getViewKey() === "Month") {
+                this._updateAppointmentsForMonth(today);
+            }
+            
+            this._updateCurrentIntervalText();
+            this._updateMiniCalendar();
+            this._updateTimesheetSummary();
+            MessageToast.show("Navigated to today");
+        },
+        
+        onPrevPress: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            var oStartDate = oPlanningCalendar.getStartDate();
+            var sViewKey = oPlanningCalendar.getViewKey();
+            
+            var oNewStartDate = new Date(oStartDate);
+            if (sViewKey === "Day") {
+                oNewStartDate.setDate(oStartDate.getDate() - 1);
+            } else if (sViewKey === "Week") {
+                oNewStartDate.setDate(oStartDate.getDate() - 7);
+            } else if (sViewKey === "Month") {
+                oNewStartDate.setMonth(oStartDate.getMonth() - 1);
+            }
+            
+            oPlanningCalendar.setStartDate(oNewStartDate);
+            this.getView().getModel().setProperty("/startDate", oNewStartDate);
+            
+            // Update appointments for the new month if in month view
+            if (sViewKey === "Month") {
+                this._updateAppointmentsForMonth(oNewStartDate);
+            }
+            
+            this._updateCurrentIntervalText();
+            this._updateMiniCalendar();
+            this._updateTimesheetSummary();
+        },
+        
+        onNextPress: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            var oStartDate = oPlanningCalendar.getStartDate();
+            var sViewKey = oPlanningCalendar.getViewKey();
+            
+            var oNewStartDate = new Date(oStartDate);
+            if (sViewKey === "Day") {
+                oNewStartDate.setDate(oStartDate.getDate() + 1);
+            } else if (sViewKey === "Week") {
+                oNewStartDate.setDate(oStartDate.getDate() + 7);
+            } else if (sViewKey === "Month") {
+                oNewStartDate.setMonth(oStartDate.getMonth() + 1);
+            }
+            
+            oPlanningCalendar.setStartDate(oNewStartDate);
+            this.getView().getModel().setProperty("/startDate", oNewStartDate);
+            
+            // Update appointments for the new month if in month view
+            if (sViewKey === "Month") {
+                this._updateAppointmentsForMonth(oNewStartDate);
+            }
+            
+            this._updateCurrentIntervalText();
+            this._updateMiniCalendar();
+            this._updateTimesheetSummary();
+        },
+        
+        onDateSelect: function(oEvent) {
+            var oSelectedDate = oEvent.getParameter("date");
+            var oPlanningCalendar = this.byId("planningCalendar");
+            
+            if (oPlanningCalendar.getViewKey() === "Month") {
+                // In month view, just update the start date to maintain month view
+                var firstDayOfMonth = new Date(oSelectedDate.getFullYear(), oSelectedDate.getMonth(), 1);
+                oPlanningCalendar.setStartDate(firstDayOfMonth);
+                this.getView().getModel().setProperty("/startDate", firstDayOfMonth);
+                
+                // Update appointments for the new month
+                this._updateAppointmentsForMonth(firstDayOfMonth);
+            } else {
+                oPlanningCalendar.setStartDate(oSelectedDate);
+                this.getView().getModel().setProperty("/startDate", oSelectedDate);
+            }
+            
+            this._updateCurrentIntervalText();
+            this._updateMiniCalendar();
+            this._updateTimesheetSummary();
+            
+            var sFormattedDate = DateFormat.getDateInstance({pattern: "EEEE, MMMM d, yyyy"}).format(oSelectedDate);
+            MessageToast.show("Selected date: " + sFormattedDate);
+        },
+        
+        onViewChange: function(oEvent) {
+            var sSelectedKey = oEvent.getParameter("selectedItem").getKey();
+            var oPlanningCalendar = this.byId("planningCalendar");
+            oPlanningCalendar.setViewKey(sSelectedKey);
+            
+            var oStartDate = new Date();
+            
+            if (sSelectedKey === "Day") {
+                // Keep current day
+            } else if (sSelectedKey === "Week") {
+                // Start from Monday of current week
+                var dayOfWeek = oStartDate.getDay();
+                var diff = oStartDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                oStartDate.setDate(diff);
+            } else if (sSelectedKey === "Month") {
+                // Start from first day of month
+                oStartDate.setDate(1);
+            }
+            
+            oPlanningCalendar.setStartDate(oStartDate);
+            this.getView().getModel().setProperty("/startDate", oStartDate);
+            
+            // Update appointments for the new month if switching to month view
+            if (sSelectedKey === "Month") {
+                this._updateAppointmentsForMonth(oStartDate);
+            }
+            
+            this._updateCurrentIntervalText();
+            this._updateMiniCalendar();
+            this._updateTimesheetSummary();
+            this._applyTeamsMonthViewStyling();
+            
+            MessageToast.show("View changed to: " + sSelectedKey);
+        },
+        
+        onPersonChange: function(oEvent) {
+            var sSelectedKey = oEvent.getParameter("selectedItem").getKey();
+            var oModel = this.getView().getModel();
+            
+            // Store the current selection
+            this._sCurrentPersonKey = sSelectedKey;
+            
+            if (sSelectedKey === "all") {
+                // Reset to all original people data
+                oModel.setProperty("/people", JSON.parse(JSON.stringify(this._oOriginalPeopleData)));
+            } else {
+                // Filter to show only selected person
+                var oSelectedPerson = this._oOriginalPeopleData.find(function(oPerson) {
+                    return oPerson.name === sSelectedKey;
+                });
+                if (oSelectedPerson) {
+                    oModel.setProperty("/people", [JSON.parse(JSON.stringify(oSelectedPerson))]);
+                }
+            }
+            
+            this._updateTimesheetSummary();
+            MessageToast.show("Showing schedule for: " + (sSelectedKey === "all" ? "All Members" : sSelectedKey));
+        },
+        
+        onAppointmentSelect: function(oEvent) {
+            var oAppointment = oEvent.getParameter("appointment");
+            if (oAppointment) {
+                // Get the row (person) associated with this appointment
+                var oRow = oEvent.getParameter("row");
+                if (oRow) {
+                    var oRowContext = oRow.getBindingContext();
+                    if (oRowContext) {
+                        var sPersonName = oRowContext.getProperty("name");
+                        // Navigate to the MemberTasks view
+                        var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+                        oRouter.navTo("memberTasks", {
+                            personName: encodeURIComponent(sPersonName)
+                        });
+                    }
+                }
+            }
+        },
+        
+        onAppointmentDrop: function(oEvent) {
+            var oDroppedAppointment = oEvent.getParameter("appointment");
+            var oNewStartDate = oEvent.getParameter("startDate");
+            var oNewEndDate = oEvent.getParameter("endDate");
+            var oRow = oEvent.getParameter("row");
+            
+            // Find and update the appointment in the model
+            var oModel = this.getView().getModel();
+            var aPeople = oModel.getProperty("/people");
+            var oSourcePerson, oTargetPerson, oAppointment;
+            
+            // Find the appointment and source person
+            for (var i = 0; i < aPeople.length; i++) {
+                var oPerson = aPeople[i];
+                var aAppointments = oPerson.appointments;
+                
+                for (var j = 0; j < aAppointments.length; j++) {
+                    var oCurrentAppointment = aAppointments[j];
+                    
+                    // Compare appointment data to find the dropped one
+                    if (this._areAppointmentsEqual(oCurrentAppointment, oDroppedAppointment)) {
+                        oSourcePerson = oPerson;
+                        oAppointment = oCurrentAppointment;
+                        break;
+                    }
+                }
+                
+                if (oAppointment) break;
+            }
+            
+            if (!oAppointment) return;
+            
+            // Find target person if dropped on a different row
+            if (oRow) {
+                var oRowBindingContext = oRow.getBindingContext();
+                if (oRowBindingContext) {
+                    var sRowPath = oRowBindingContext.getPath();
+                    var aRowPathParts = sRowPath.split("/");
+                    var iPersonIndex = parseInt(aRowPathParts[2], 10);
+                    oTargetPerson = aPeople[iPersonIndex];
+                }
+            }
+            
+            // If dropped on a different person, move the appointment
+            if (oTargetPerson && oTargetPerson !== oSourcePerson) {
+                // Remove from source person
+                var index = oSourcePerson.appointments.indexOf(oAppointment);
+                if (index > -1) {
+                    oSourcePerson.appointments.splice(index, 1);
+                }
+                
+                // Calculate new hours
+                var hours = this._calculateHours(oNewStartDate, oNewEndDate);
+                
+                // Add to target person
+                oTargetPerson.appointments.push({
+                    id: oAppointment.id,
+                    start: new Date(oNewStartDate),
+                    end: new Date(oNewEndDate),
+                    title: oAppointment.title,
+                    info: oTargetPerson.name + " - " + hours.toFixed(1) + "h work",
+                    type: oAppointment.type,
+                    tentative: oAppointment.tentative,
+                    color: this._getColorForHours(hours, oTargetPerson.name),
+                    icon: oAppointment.icon
+                });
+                
+                // Update original data for filtering
+                this._updateOriginalDataAfterDrop(oSourcePerson.name, oTargetPerson.name, oAppointment, oNewStartDate, oNewEndDate, hours);
+            } else {
+                // Update the appointment dates if dropped on the same person
+                oAppointment.start = new Date(oNewStartDate);
+                oAppointment.end = new Date(oNewEndDate);
+                
+                // Update hours info
+                var hours = this._calculateHours(oNewStartDate, oNewEndDate);
+                oAppointment.info = oSourcePerson.name + " - " + hours.toFixed(1) + "h work";
+                
+                // Update color based on new hours and person
+                oAppointment.color = this._getColorForHours(hours, oSourcePerson.name);
+                
+                // Update original data
+                this._updateOriginalDataAfterResize(oSourcePerson.name, oAppointment.id, oNewStartDate, oNewEndDate, hours);
+            }
+            
+            // Refresh the model
+            oModel.refresh(true);
+            this._updateTimesheetSummary();
+            
+            MessageToast.show("Appointment moved to: " + 
+                DateFormat.getDateTimeInstance({pattern: "MMM d, h:mm a"}).format(oNewStartDate));
+        },
+        
+        onAppointmentResize: function(oEvent) {
+            var oResizedAppointment = oEvent.getParameter("appointment");
+            var oNewStartDate = oEvent.getParameter("startDate");
+            var oNewEndDate = oEvent.getParameter("endDate");
+            
+            // Find and update the appointment in the model
+            var oModel = this.getView().getModel();
+            var aPeople = oModel.getProperty("/people");
+            
+            for (var i = 0; i < aPeople.length; i++) {
+                var oPerson = aPeople[i];
+                var aAppointments = oPerson.appointments;
+                
+                for (var j = 0; j < aAppointments.length; j++) {
+                    var oAppointment = aAppointments[j];
+                    
+                    // Compare appointment data to find the resized one
+                    if (this._areAppointmentsEqual(oAppointment, oResizedAppointment)) {
+                        // Update the appointment dates
+                        oAppointment.start = new Date(oNewStartDate);
+                        oAppointment.end = new Date(oNewEndDate);
+                        
+                        // Update hours info
+                        var hours = this._calculateHours(oNewStartDate, oNewEndDate);
+                        oAppointment.info = oPerson.name + " - " + hours.toFixed(1) + "h work";
+                        
+                        // Update color based on new hours and person
+                        oAppointment.color = this._getColorForHours(hours, oPerson.name);
+                        
+                        // Update original data
+                        this._updateOriginalDataAfterResize(oPerson.name, oAppointment.id, oNewStartDate, oNewEndDate, hours);
+                        
+                        break;
+                    }
+                }
+            }
+            
+            // Refresh the model
+            oModel.refresh(true);
+            this._updateTimesheetSummary();
+            
+            var hours = this._calculateHours(oNewStartDate, oNewEndDate);
+            MessageToast.show("Appointment resized: " + hours.toFixed(1) + " hours");
+        },
+        
+        onAppointmentCreate: function(oEvent) {
+            var oRow = oEvent.getParameter("row");
+            var oStartDate = oEvent.getParameter("startDate");
+            var oEndDate = oEvent.getParameter("endDate");
+            
+            // Get the person for this row
+            var oRowBindingContext = oRow.getBindingContext();
+            if (!oRowBindingContext) {
+                return;
+            }
+            
+            var oModel = this.getView().getModel();
+            var sRowPath = oRowBindingContext.getPath();
+            var aRowPathParts = sRowPath.split("/");
+            var iPersonIndex = parseInt(aRowPathParts[2], 10);
+            
+            // Create a new appointment
+            var aPeople = oModel.getProperty("/people");
+            var oPerson = aPeople[iPersonIndex];
+            
+            var hours = this._calculateHours(oStartDate, oEndDate);
+            var newAppointment = {
+                id: this._generateAppointmentId(),
+                start: new Date(oStartDate),
+                end: new Date(oEndDate),
+                title: "New Appointment",
+                info: oPerson.name + " - " + hours.toFixed(1) + "h work",
+                type: "Type06",
+                tentative: false,
+                color: this._getColorForHours(hours, oPerson.name),
+                icon: "sap-icon://create"
+            };
+            
+            oPerson.appointments.push(newAppointment);
+            
+            // Also update original data
+            this._updateOriginalDataAfterCreate(oPerson.name, newAppointment);
+            
+            oModel.refresh(true);
+            this._updateTimesheetSummary();
+            MessageToast.show("New appointment created for " + oPerson.name);
+        },
+        
+        // New function to handle interval selection
+        handleIntervalSelect: function(oEvent) {
+            var oPC = oEvent.getSource(),
+                oStartDate = oEvent.getParameter("startDate"),
+                oEndDate = oEvent.getParameter("endDate"),
+                oRow = oEvent.getParameter("row"),
+                oModel = this.getView().getModel(),
+                oData = oModel.getData(),
+                iIndex = -1,
+                hours = this._calculateHours(oStartDate, oEndDate),
+                oAppointment = {
+                    id: this._generateAppointmentId(),
+                    start: oStartDate,
+                    end: oEndDate,
+                    title: "New Appointment",
+                    info: "",
+                    type: "Type09",
+                    tentative: false,
+                    color: "#6A6A6A",
+                    icon: "sap-icon://create"
+                },
+                aSelectedRows,
+                i;
+
+            if (oRow) {
+                iIndex = oPC.indexOfRow(oRow);
+                if (iIndex >= 0) {
+                    oAppointment.info = oData.people[iIndex].name + " - " + hours.toFixed(1) + "h work";
+                    oAppointment.color = this._getColorForHours(hours, oData.people[iIndex].name);
+                    oData.people[iIndex].appointments.push(oAppointment);
+                    this._updateOriginalDataAfterCreate(oData.people[iIndex].name, oAppointment);
+                }
+            } else {
+                aSelectedRows = oPC.getSelectedRows();
+                for (i = 0; i < aSelectedRows.length; i++) {
+                    iIndex = oPC.indexOfRow(aSelectedRows[i]);
+                    if (iIndex >= 0) {
+                        var personAppointment = JSON.parse(JSON.stringify(oAppointment));
+                        personAppointment.info = oData.people[iIndex].name + " - " + hours.toFixed(1) + "h work";
+                        personAppointment.color = this._getColorForHours(hours, oData.people[iIndex].name);
+                        oData.people[iIndex].appointments.push(personAppointment);
+                        this._updateOriginalDataAfterCreate(oData.people[iIndex].name, personAppointment);
+                    }
+                }
+            }
+
+            oModel.setData(oData);
+            this._updateTimesheetSummary();
+            MessageToast.show("New appointment created");
+        },
+        
+        _calculateHours: function(startDate, endDate) {
+            return (new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60);
+        },
+        
+        _areAppointmentsEqual: function(oModelAppointment, oUIAppointment) {
+            // Compare by ID if available
+            if (oModelAppointment.id && oUIAppointment.data && oUIAppointment.data.id) {
+                return oModelAppointment.id === oUIAppointment.data.id;
+            }
+            
+            // Fallback to comparing properties if ID is not available
+            return oModelAppointment.title === oUIAppointment.getTitle() &&
+                   new Date(oModelAppointment.start).getTime() === oUIAppointment.getStartDate().getTime() &&
+                   new Date(oModelAppointment.end).getTime() === oUIAppointment.getEndDate().getTime();
+        },
+        
+        _updateAppointmentsForMonth: function(startOfMonth) {
+            // Generate new appointments for all people for the new month
+            var aNewPeople = this._oOriginalPeopleData.map(function(oPerson) {
+                return {
+                    name: oPerson.name,
+                    role: oPerson.role,
+                    // appointments: this._generateMonthAppointmentsForPerson(
+                    //     oPerson.name, 
+                    //     oPerson.role, 
+                    //     startOfMonth
+                    // )
+                };
+            }.bind(this));
+            
+            // Update the original people array
+            this._oOriginalPeopleData = aNewPeople;
+            
+            // Apply the current filter
+            this._applyCurrentFilter();
+            
+            // Update the model
+            this.getView().getModel().setProperty("/startDate", startOfMonth);
+            
+            // Update other UI elements
+            this._updateTimesheetSummary();
+            this._updateMiniCalendar();
+        },
+        
+        _applyCurrentFilter: function() {
+            var oModel = this.getView().getModel();
+            
+            if (this._sCurrentPersonKey === "all") {
+                oModel.setProperty("/people", JSON.parse(JSON.stringify(this._oOriginalPeopleData)));
+            } else {
+                var oSelectedPerson = this._oOriginalPeopleData.find(function(oPerson) {
+                    return oPerson.name === this._sCurrentPersonKey;
+                }.bind(this));
+                oModel.setProperty("/people", oSelectedPerson ? [JSON.parse(JSON.stringify(oSelectedPerson))] : []);
+            }
+        },
+        
+        // New helper methods to update original data
+        _updateOriginalDataAfterDrop: function(sourcePersonName, targetPersonName, appointment, newStartDate, newEndDate, hours) {
+            // Remove from source person in original data
+            var sourcePerson = this._oOriginalPeopleData.find(function(person) {
+                return person.name === sourcePersonName;
+            });
+            
+            if (sourcePerson) {
+                var appointmentIndex = sourcePerson.appointments.findIndex(function(appt) {
+                    return appt.id === appointment.id;
+                });
+                
+                if (appointmentIndex > -1) {
+                    sourcePerson.appointments.splice(appointmentIndex, 1);
+                }
+            }
+            
+            // Add to target person in original data
+            var targetPerson = this._oOriginalPeopleData.find(function(person) {
+                return person.name === targetPersonName;
+            });
+            
+            if (targetPerson) {
+                targetPerson.appointments.push({
+                    id: appointment.id,
+                    start: new Date(newStartDate),
+                    end: new Date(newEndDate),
+                    title: appointment.title,
+                    info: targetPersonName + " - " + hours.toFixed(1) + "h work",
+                    type: appointment.type,
+                    tentative: appointment.tentative,
+                    color: this._getColorForHours(hours, targetPersonName),
+                    icon: appointment.icon
+                });
+            }
+        },
+        
+        _updateOriginalDataAfterResize: function(personName, appointmentId, newStartDate, newEndDate, hours) {
+            var person = this._oOriginalPeopleData.find(function(p) {
+                return p.name === personName;
+            });
+            
+            if (person) {
+                var appointment = person.appointments.find(function(appt) {
+                    return appt.id === appointmentId;
+                });
+                
+                if (appointment) {
+                    appointment.start = new Date(newStartDate);
+                    appointment.end = new Date(newEndDate);
+                    appointment.info = personName + " - " + hours.toFixed(1) + "h work";
+                    appointment.color = this._getColorForHours(hours, personName);
+                }
+            }
+        },
+        
+        _updateOriginalDataAfterCreate: function(personName, newAppointment) {
+            var person = this._oOriginalPeopleData.find(function(p) {
+                return p.name === personName;
+            });
+            
+            if (person) {
+                person.appointments.push(JSON.parse(JSON.stringify(newAppointment)));
+            }
+        },
+        
+        onNewRequestPress: function() {
+            var oPlanningCalendar = this.byId("planningCalendar");
+            var oStartDate = new Date(oPlanningCalendar.getStartDate());
+            var oModel = this.getView().getModel();
+            var aPeople = oModel.getProperty("/people");
+            
+            if (aPeople.length === 0) return;
+            
+            var oPerson = aPeople[0];
+            var start = new Date(oStartDate);
+            start.setHours(9, 0, 0, 0);
+            var end = new Date(oStartDate);
+            end.setHours(10, 0, 0, 0);
+            var hours = this._calculateHours(start, end);
+            
+            var newAppointment = {
+                id: this._generateAppointmentId(),
+                start: start,
+                end: end,
+                title: "New Request",
+                info: oPerson.name + " - New request created",
+                type: "Type06",
+                tentative: false,
+                color: this._getColorForHours(hours, oPerson.name),
+                icon: "sap-icon://create"
+            };
+            
+            oPerson.appointments.unshift(newAppointment);
+            
+            // Update original data
+            this._updateOriginalDataAfterCreate(oPerson.name, newAppointment);
+            
+            oModel.refresh(true);
+            this._updateTimesheetSummary();
+            MessageToast.show("New Request created for " + oPerson.name);
+        },
+        
+        onPersonNamePress: function(oEvent) {
+            var sPersonName = oEvent.getSource().getTitle();
+            var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+            oRouter.navTo("memberTasks", {
+                personName: encodeURIComponent(sPersonName)
+            });
+        }
+    });
+});
+
+
 UPDATED CODE 5
 
 sap.ui.define([
