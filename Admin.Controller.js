@@ -4,7 +4,7 @@ sap.ui.define([
   "sap/m/MessageToast",
   "sap/ui/model/json/JSONModel",
   "sap/ui/core/Fragment",
-  "sap/m/MessageBox",
+  "sap/m/MessageBox", 
   "sap/ui/model/Filter",
   "sap/ui/model/FilterOperator",
   "sap/m/Select",
