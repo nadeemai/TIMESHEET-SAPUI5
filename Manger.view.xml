@@ -1,0 +1,421 @@
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:unified="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:table="sap.ui.table"
+    controllerName="manager.controller.Manager"
+    height="100%"
+    displayBlock="true">
+    
+    <Page id="page1" showHeader="false">
+        <content>
+            <!-- Top Bar -->
+            <Toolbar id="mainToolbar" class="topToolbar">
+                <!-- <Image id="logoImage" src="path/to/logo.png" width="2rem" height="2rem" class="logo" /> -->
+                <Title id="appTitle" text="Timesheet Management System" level="H3" class="title" />
+                <ToolbarSpacer id="_IDGenToolbarSpacer" />
+            <Button id="profileButton" icon="sap-icon://person-placeholder" tooltip="My Profile" press="onProfilePress" class="sapUiTinyMarginEnd"/>
+                <Button id="notificationButton" icon="sap-icon://bell" press="onNotificationPress" class="sapUiSmallMarginEnd" />
+            </Toolbar>
+            
+            <!-- Main Content with Icon Tab Bar -->
+            <IconTabBar id="iconTabBar" expanded="{device>/isNoPhone}" class="sapUiResponsiveContentPadding">
+                <!-- Dashboard Tab -->
+                <items>
+                    
+                    
+                    <!-- Project Assignment Tab -->
+                    <IconTabFilter id="_IDGenIconTabFilter1" text="Project Assignment" icon="sap-icon://projector">
+                        <VBox id="_IDGenVBox2" class="sapUiMediumMargin">
+                            <HBox id="_IDGenHBox4">
+                                <SearchField id="_IDGenSearchField" placeholder="Search employees..." width="100%" liveChange="onEmployeeSearch"/>
+                                <Button id="_IDGenButton" text="Filter" icon="sap-icon://filter" press="onOpenFilterDialog"/>
+                            </HBox>
+                            <table:Table id="employeeTable" rows="{/employees}" selectionMode="MultiToggle" visibleRowCount="10">
+                                <table:columns>
+                                    <table:Column id="_IDGenColumn">
+                                        <Label id="_IDGenLabel32" text="Employee"/>
+                                        <table:template>
+                                            <Text id="_IDGenText25" text="{name}"/>
+                                        </table:template>
+                                    </table:Column>
+                                    <table:Column id="_IDGenColumn17">
+                                        <Label id="_IDGenLabel33" text="Role"/>
+                                        <table:template>
+                                            <Text id="_IDGenText26" text="{role}"/>
+                                        </table:template>
+                                    </table:Column>
+                                    <table:Column id="_IDGenColumn18">
+                                        <Label id="_IDGenLabel34" text="Skills"/>
+                                        <table:template>
+                                            <Text id="_IDGenText27" text="{skills}"/>
+                                        </table:template>
+                                    </table:Column>
+                                    <!-- <table:Column id="_IDGenColumn19">
+                                        <Label id="_IDGenLabel35" text="Availability"/>
+                                        <table:template>
+                                            <ProgressIndicator id="_IDGenProgressIndicator" percentValue="{availability}" displayValue="{availability}%" state="{path: 'availability', formatter: '.formatAvailabilityState'}"/>
+                                        </table:template>
+                                    </table:Column> -->
+                                    <table:Column id="_IDGenColumn20">
+                                        <Label id="_IDGenLabel36" text="Current Projects"/>
+                                        <table:template>
+                                            <Text id="_IDGenText28" text="{currentProjects}"/>
+                                        </table:template>
+                                    </table:Column>
+                                </table:columns>
+                            </table:Table>
+                            <HBox id="_IDGenHBox5" class="sapUiMediumMarginTop">
+                                <Select id="projectSelect" items="{/projects}" class="sapUiMediumMarginEnd">
+                                    <items>
+                                        <core:Item id="_IDGenItem24" key="{id}" text="{name}"/>
+                                    </items>
+                                </Select>
+                                <Button id="_IDGenButton7" text="Assign Selected Employees" type="Emphasized" press="onAssignProject"/>
+                            </HBox>
+                        </VBox>
+                    </IconTabFilter>
+                    
+                    <!-- Timesheet Review Tab -->
+                    <IconTabFilter id="timesheetTab" key="timesheet" text="Timesheet" icon="sap-icon://time-entry-request">
+    <Panel id="timesheetPanel" headerText="Daily Time Entry" expandable="true" expanded="true">
+        <headerToolbar>
+            <Toolbar>
+                <ToolbarSpacer/>
+                <Button text="Previous Week" icon="sap-icon://navigation-left-arrow" press="onPreviousWeek"/>
+                <Button text="Current Week" type="Emphasized" press="onCurrentWeek"/>
+                <Button text="Next Week" press="onNextWeek"/>
+                <DatePicker 
+    id="datePicker" 
+     
+    change="onDatePickerChange" 
+    width="150px"
+    />
+            </Toolbar>
+        </headerToolbar>
+
+        <content>
+            <HBox width="100%" height="600px" class="sapUiTinyMargin">
+
+                <!-- Employee List -->
+                <!-- Employee List -->
+<!-- Employee List inside Timesheet Tab -->
+<VBox width="25%">
+    <Label text="Employees" class="sapUiSmallMarginBottom sapUiTinyMarginStart"/>
+    <ScrollContainer height="400px" vertical="true">
+        <SearchField id="employeeSearchField"
+            placeholder="Search Employee..."
+            liveChange="onSearchEmployee"/>
+       <List id="employeeList"
+      items="{
+          path: '/users'
+      }"
+      mode="SingleSelectMaster"
+      selectionChange="onEmployeeListSelect"
+      includeItemInSelection="true">
+    <StandardListItem
+        title="{firstName} {lastName}"
+        type="Active"
+        icon="{= ${role} === 'Manager' ? 'sap-icon://manager' : 'sap-icon://employee'}"
+        class="{= ${hasNoTimesheetData} ? 'highlightRed' : ''}"
+    />
+</List>
+    </ScrollContainer>
+</VBox>
+
+
+                <!-- Timesheet Table -->
+                <VBox width="75%" height="100%">
+                    <Label 
+                        text="{= ${/selectedEmployeeName} ? ${/selectedEmployeeName} : 'Select an Employee'}"
+                        class="sapUiSmallMarginStart sapUiSmallMarginBottom"/>
+                        
+
+                    <ScrollContainer id="timesheetScroll" horizontal="true" vertical="true">
+                        <table:Table
+                            id="timesheetTable"
+                            rows="{/timesheetEntries}"
+                            visibleRowCount="10"
+                            width="100%"
+                            selectionMode="None">
+
+                            <table:columns>
+                                <table:Column width="15rem">
+                                    <Label text="Project"/>
+                                    <table:template>
+                                        <Text text="{project}"/>
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column width="12rem">
+                                    <Label text="Task"/>
+                                    <table:template>
+                                        <Text text="{task}"/>
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column width="15rem">
+                                    <Label text="Task Details"/>
+                                    <table:template>
+                                        <HBox alignItems="Center" justifyContent="left">
+                                            <Text text="{taskDetails}"/>
+                                            <Button icon="sap-icon://list" type="Transparent" press="onTaskDetailPress"/>
+                                        </HBox>
+                                    </table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="Total Hours"/>
+                                    <table:template><Text text="{totalHours}"/></table:template>
+                                </table:Column>
+
+                                <!-- Day Columns -->
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/0}"/>
+                                    <table:template><Button text="{monday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/1}"/>
+                                    <table:template><Button text="{tuesday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/2}"/>
+                                    <table:template><Button text="{wednesday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/3}"/>
+                                    <table:template><Button text="{thursday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/4}"/>
+                                    <table:template><Button text="{friday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/5}"/>
+                                    <table:template><Button text="{saturday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                <table:Column width="8rem">
+                                    <Label text="{/weekDays/6}"/>
+                                    <table:template><Button text="{sunday}" press="onHourButtonPress"/></table:template>
+                                </table:Column>
+
+                                
+
+                            </table:columns>
+
+                        </table:Table>
+                    </ScrollContainer>
+                </VBox>
+
+            </HBox>
+        </content>
+
+    </Panel>
+</IconTabFilter>
+                    
+                    <!-- Project Reports Tab -->
+                    <!-- Project Reports Tab -->
+<IconTabFilter id="_IDGenIconTabFilter3" text="Project Reports" icon="sap-icon://pie-chart">
+    <VBox id="_IDGenVBox4" class="sapUiMediumMargin">
+        <HBox id="_IDGenHBox9">
+            <Select id="reportProjectSelect" items="{/projects}" change="onProjectReportChange" class="sapUiMediumMarginEnd">
+                <items>
+                    <core:Item id="_IDGenItem29" key="{id}" text="{name}"/>
+                </items>
+            </Select>
+            <DatePicker id="reportStartDate" valueFormat="yyyy-MM-dd" placeholder="Start Date" change="onDateRangeChange"/>
+            <Text id="_IDGenText34" text="to" class="sapUiMediumMarginBegin sapUiMediumMarginEnd"/>
+            <DatePicker id="reportEndDate" valueFormat="yyyy-MM-dd" placeholder="End Date" change="onDateRangeChange"/>
+            <Button id="_IDGenButton12" text="Generate Report" icon="sap-icon://refresh" press="onGenerateReport" class="sapUiMediumMarginBegin"/>
+            <Button id="_IDGenButton13" text="Export Report" icon="sap-icon://download" press="onExportReport" class="sapUiMediumMarginBegin"/>
+        </HBox>
+        
+        <Panel id="_IDGenPanel4" headerText="Project Summary" class="sapUiMediumMarginTop">
+            <!-- <HBox id="_IDGenHBox10">
+                <VBox id="_IDGenVBox5" class="sapUiMediumMarginEnd">
+                    <Text id="_IDGenText35" text="Total Booked Hours"/>
+                    <Title id="_IDGenTitle" text="{projectReport>/totalHours}"/>
+                </VBox>
+                <VBox id="_IDGenVBox6" class="sapUiMediumMarginEnd">
+                    <Text id="_IDGenText36" text="Number of Employees"/>
+                    <Title id="_IDGenTitle4" text="{projectReport>/employeeCount}"/>
+                </VBox>
+                <VBox id="_IDGenVBox7">
+                    <Text id="_IDGenText37" text="Average Hours per Employee"/>
+                    <Title id="_IDGenTitle5" text="{projectReport>/avgHoursPerEmployee}"/>
+                </VBox>
+            </HBox> -->
+            
+            <!-- New Projects Table -->
+            <Panel id="projectsPanel" headerText="Projects" class="sapUiMediumMarginTop" expandable="true" expanded="true">
+                <table:Table id="projectsTable" rows="{/projectsData}" visibleRowCount="8" selectionMode="None">
+                    <table:columns>
+                        <table:Column width="12rem">
+                            <Label text="Project Name"/>
+                            <table:template>
+                                <Text text="{projectName}"/>
+                            </table:template>
+                        </table:Column>
+                        <table:Column width="12rem">
+                            <Label text="Project Owner"/>
+                            <table:template>
+                                <Text text="{projectOwnerName}"/>
+                            </table:template>
+                        </table:Column>
+                        <table:Column width="10rem">
+                            <Label text="Allocated Hours"/>
+                            <table:template>
+                                <Text text="{allocatedHours}"/>
+                            </table:template>
+                        </table:Column>
+                        <!-- <table:Column width="10rem">
+                            <Label text="Budget"/>
+                            <table:template>
+                                <Text text="{path: 'budget', type: 'sap.ui.model.odata.type.Currency'}"/>
+                            </table:template>
+                        </table:Column> -->
+                        <table:Column width="10rem">
+                            <Label text="Status"/>
+                            <table:template>
+                                <ObjectStatus 
+                                    text="{status}" 
+                                    state="{path: 'status', formatter: '.formatProjectStatusState'}"/>
+                            </table:template>
+                        </table:Column>
+                        <table:Column width="12rem">
+                            <Label text="Start Date"/>
+                            <table:template>
+                                <Text text="{path: 'startDate', type: 'sap.ui.model.odata.type.Date'}"/>
+                            </table:template>
+                        </table:Column>
+                        <table:Column width="12rem">
+                            <Label text="End Date"/>
+                            <table:template>
+                                <Text text="{path: 'endDate', type: 'sap.ui.model.odata.type.Date'}"/>
+                            </table:template>
+                        </table:Column>
+                    </table:columns>
+                </table:Table>
+            </Panel>
+        </Panel>
+    </VBox>
+</IconTabFilter>
+                    
+                    <!-- Manager's View Tab -->
+                    <IconTabFilter id="_IDGenIconTabFilter4" text="Manager's View" icon="sap-icon://manager">
+                        <VBox id="_IDGenVBox8" class="sapUiMediumMargin">
+                            <HBox id="_IDGenHBox11">
+                                <Select id="managerProjectSelect" items="{/projects}" change="onManagerViewChange" class="sapUiMediumMarginEnd">
+                                    <items>
+                                        <core:Item id="_IDGenItem30" key="all" text="All Projects"/>
+                                        <core:Item id="_IDGenItem31" key="{id}" text="{name}"/>
+                                    </items>
+                                </Select>
+                                <DatePicker id="managerStartDate" valueFormat="yyyy-MM-dd" placeholder="Start Date" change="onManagerDateRangeChange"/>
+                                <Text id="_IDGenText42" text="to" class="sapUiMediumMarginBegin sapUiMediumMarginEnd"/>
+                                <DatePicker id="managerEndDate" valueFormat="yyyy-MM-dd" placeholder="End Date" change="onManagerDateRangeChange"/>
+                                <Button id="_IDGenButton14" text="Generate Report" icon="sap-icon://refresh" press="onGenerateManagerReport" class="sapUiMediumMarginBegin"/>
+                                <Button id="_IDGenButton15" text="Export Report" icon="sap-icon://download" press="onExportManagerReport" class="sapUiMediumMarginBegin"/>
+                            </HBox>
+                            
+                            <Panel id="_IDGenPanel7" headerText="Project Engagement Duration" class="sapUiMediumMarginTop">
+                                <table:Table id="_IDGenTable3" rows="{managerView>/projectEngagements}" visibleRowCount="8">
+                                    <table:columns>
+                                        <table:Column id="_IDGenColumn34">
+                                            <Label id="_IDGenLabel50" text="Project"/>
+                                            <table:template>
+                                                <Text id="_IDGenText43" text="{managerView>projectName}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn35">
+                                            <Label id="_IDGenLabel51" text="Employee"/>
+                                            <table:template>
+                                                <Text id="_IDGenText44" text="{managerView>employeeName}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn36">
+                                            <Label id="_IDGenLabel52" text="Start Date"/>
+                                            <table:template>
+                                                <Text id="_IDGenText45" text="{path: 'managerView>startDate', type: 'sap.ui.model.odata.type.Date'}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn37">
+                                            <Label id="_IDGenLabel53" text="End Date"/>
+                                            <table:template>
+                                                <Text id="_IDGenText46" text="{path: 'managerView>endDate', type: 'sap.ui.model.odata.type.Date'}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn38">
+                                            <Label id="_IDGenLabel54" text="Duration (Days)"/>
+                                            <table:template>
+                                                <Text id="_IDGenText47" text="{managerView>duration}"/>
+                                            </table:template>
+                                        </table:Column>
+                                    </table:columns>
+                                </table:Table>
+                            </Panel>
+                            
+                            <Panel id="_IDGenPanel8" headerText="Booked Hours Analysis" class="sapUiMediumMarginTop">
+                                <table:Table id="_IDGenTable4" rows="{managerView>/bookedHours}" visibleRowCount="8">
+                                    <table:columns>
+                                        <table:Column id="_IDGenColumn39">
+                                            <Label id="_IDGenLabel55" text="Project"/>
+                                            <table:template>
+                                                <Text id="_IDGenText48" text="{managerView>projectName}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn40">
+                                            <Label id="_IDGenLabel56" text="Employee"/>
+                                            <table:template>
+                                                <Text id="_IDGenText49" text="{managerView>employeeName}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn41">
+                                            <Label id="_IDGenLabel57" text="Planned Hours"/>
+                                            <table:template>
+                                                <Text id="_IDGenText50" text="{managerView>plannedHours}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn42">
+                                            <Label id="_IDGenLabel58" text="Actual Hours"/>
+                                            <table:template>
+                                                <Text id="_IDGenText51" text="{managerView>actualHours}"/>
+                                            </table:template>
+                                        </table:Column>
+                                        <table:Column id="_IDGenColumn43">
+                                            <Label id="_IDGenLabel59" text="Variance"/>
+                                            <table:template>
+                                                <ObjectNumber id="_IDGenObjectNumber" 
+                                                    number="{managerView>variance}" 
+                                                    state="{path: 'managerView>variance', formatter: '.formatVarianceState'}"/>
+                                            </table:template>
+                                        </table:Column>
+                                    </table:columns>
+                                </table:Table>
+                            </Panel>
+                            
+                            <Panel id="_IDGenPanel9" headerText="Potential Issues" class="sapUiMediumMarginTop">
+                                <List id="_IDGenList2" items="{managerView>/potentialIssues}">
+                                    <StandardListItem id="_IDGenStandardListItem1" 
+                                        title="{title}" 
+                                        description="{description}"
+                                        icon="{icon}"
+                                        type="Active"/>
+                                </List>
+                            </Panel>
+                        </VBox>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+    </Page>
+</mvc:View>
