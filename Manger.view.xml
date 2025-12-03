@@ -1,3 +1,297 @@
+UPDATED CODE 4
+
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:unified="sap.ui.unified"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:table="sap.ui.table"
+    controllerName="manager.controller.Manager"
+    height="100%"
+    displayBlock="true">
+    
+    <Page id="page1" showHeader="false">
+        <content>
+            <!-- Top Bar -->
+            <Toolbar id="mainToolbar" class="topToolbar">
+                <Title id="appTitle" text="Manager Dashboard" level="H3" class="title" />
+                <ToolbarSpacer id="_IDGenToolbarSpacer" />
+                <Button id="profileButton" icon="sap-icon://person-placeholder" tooltip="My Profile" press="onProfilePress" class="sapUiTinyMarginEnd"/>
+                <Button id="notificationButton" icon="sap-icon://bell" press="onNotificationPress" class="sapUiSmallMarginEnd" />
+            </Toolbar>
+            
+            <!-- Main Content with Icon Tab Bar -->
+            <IconTabBar id="iconTabBar" expanded="{device>/isNoPhone}" class="sapUiResponsiveContentPadding">
+                <items>
+                    <!-- Timesheet Tab -->
+                    <IconTabFilter id="timesheetTab" key="timesheet" text="Timesheet" icon="sap-icon://time-entry-request">
+                        <!-- Existing timesheet content remains the same -->
+                        <Panel id="timesheetPanel" headerText="Daily Time Entry" expandable="true" expanded="true">
+                            <headerToolbar>
+                                <Toolbar>
+                                    <ToolbarSpacer/>
+                                    <Button text="Previous Week" icon="sap-icon://navigation-left-arrow" press="onPreviousWeek"/>
+                                    <Button text="Current Week" type="Emphasized" press="onCurrentWeek"/>
+                                    <Button text="Next Week" press="onNextWeek"/>
+                                    <DatePicker 
+                                        id="datePicker" 
+                                        value="{
+                                            path: '/selectedDate',
+                                            type: 'sap.ui.model.type.Date',
+                                            formatOptions: {
+                                                pattern: 'yyyy-MM-dd'
+                                            }
+                                        }" 
+                                        change="onDatePickerChange" 
+                                        width="150px"
+                                    />
+                                </Toolbar>
+                            </headerToolbar>
+
+                            <content>
+                                <HBox width="100%" height="600px" class="sapUiTinyMargin">
+
+                                    <!-- Employee List -->
+                                    <VBox width="25%">
+                                        <Label text="Employees" class="sapUiSmallMarginBottom sapUiTinyMarginStart"/>
+                                        <ScrollContainer height="400px" vertical="true">
+                                            <SearchField id="employeeSearchField"
+                                                placeholder="Search Employee..."
+                                                liveChange="onSearchEmployee"/>
+                                            <List id="employeeList"
+                                                items="{
+                                                    path: '/users'
+                                                }"
+                                                mode="SingleSelectMaster"
+                                                selectionChange="onEmployeeListSelect"
+                                                includeItemInSelection="true">
+                                                <StandardListItem
+                                                    title="{firstName} {lastName}"
+                                                    type="Active"
+                                                    icon="{= ${roleName} === 'Manager' ? 'sap-icon://manager' : 'sap-icon://employee'}"
+                                                    class="{= ${hasNoTimesheetData} ? 'highlightRed' : ''}"
+                                                />
+                                            </List>
+                                        </ScrollContainer>
+                                    </VBox>
+
+                                    <!-- Timesheet Table -->
+                                    <VBox width="75%" height="100%">
+                                        <Label 
+                                            text="{= ${/selectedEmployeeName} ? ${/selectedEmployeeName} : 'Select an Employee'}"
+                                            class="sapUiSmallMarginStart sapUiSmallMarginBottom"/>
+                                            
+                                        <ScrollContainer id="timesheetScroll" horizontal="true" vertical="true">
+                                            <table:Table
+                                                id="timesheetTable"
+                                                rows="{/timesheetEntries}"
+                                                visibleRowCount="10"
+                                                width="100%"
+                                                selectionMode="None">
+
+                                                <table:columns>
+                                                    <table:Column width="15rem">
+                                                        <Label text="Project"/>
+                                                        <table:template>
+                                                            <Text text="{project}"/>
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="12rem">
+                                                        <Label text="Task"/>
+                                                        <table:template>
+                                                            <Text text="{task}"/>
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="15rem">
+                                                        <Label text="Task Details"/>
+                                                        <table:template>
+                                                            <HBox alignItems="Center" justifyContent="Start">
+                                                                <Text text="{taskDetails}"/>
+                                                                <Button icon="sap-icon://list" type="Transparent" press="onTaskDetailPress"/>
+                                                            </HBox>
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="Total Hours"/>
+                                                        <table:template><Text text="{totalHours}"/></table:template>
+                                                    </table:Column>
+
+                                                    <!-- Day Columns -->
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/0}"/>
+                                                        <table:template>
+                                                            <Button text="{monday}" press="onHourButtonPress" />
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/1}"/>
+                                                        <table:template>
+                                                            <Button text="{tuesday}" press="onHourButtonPress" />
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/2}"/>
+                                                        <table:template>
+                                                            <Button text="{wednesday}" press="onHourButtonPress" />
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/3}"/>
+                                                        <table:template>
+                                                            <Button text="{thursday}" press="onHourButtonPress" />
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/4}"/>
+                                                        <table:template>
+                                                            <Button text="{friday}" press="onHourButtonPress"/>
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/5}"/>
+                                                        <table:template>
+                                                            <Button text="{saturday}" press="onHourButtonPress" />
+                                                        </table:template>
+                                                    </table:Column>
+
+                                                    <table:Column width="8rem">
+                                                        <Label text="{/weekDays/6}"/>
+                                                        <table:template>
+                                                            <Button text="{sunday}" press="onHourButtonPress" />
+                                                        </table:template>
+                                                    </table:Column>
+                                                    <table:Column width="15rem">
+                                                        <Label text="Actions"/>
+                                                        <table:template>
+                                                            <HBox>
+                                                                <!-- APPROVE BUTTON (GREEN + ICON) -->
+                                                                <Button
+                                                                    text="Approve"
+                                                                    type="Accept"
+                                                                    icon="sap-icon://accept"
+                                                                    press="onApproveTimesheet"
+                                                                    enabled="{= ${status} !== 'Approved'}"
+                                                                    class="sapUiTinyMarginEnd"
+                                                                />
+
+                                                                <!-- REJECT BUTTON (RED + ICON) -->
+                                                                <Button
+                                                                    text="Reject"
+                                                                    type="Reject"
+                                                                    icon="sap-icon://decline"
+                                                                    press="onRejectTimesheet"
+                                                                    enabled="{= ${status} !== 'Rejected'}"
+                                                                />
+                                                            </HBox>
+                                                        </table:template>
+                                                    </table:Column>
+                                                </table:columns>
+                                            </table:Table>
+                                        </ScrollContainer>
+                                    </VBox>
+                                </HBox>
+                            </content>
+                        </Panel>
+                    </IconTabFilter>
+                    
+                    <!-- Project Reports Tab -->
+                    <!-- In the Project Reports Tab section -->
+<IconTabFilter id="projectReportsTab" text="Project Reports" icon="sap-icon://pie-chart">
+    <ScrollContainer height="100%" vertical="true" class="sapUiResponsiveMargin">
+        <!-- Assign Project Button -->
+        <Toolbar class="sapUiTinyMarginBottom">
+            <ToolbarSpacer/>
+            <Button 
+                text="Assign Project" 
+                icon="sap-icon://add" 
+                press="onAssignProject"
+                type="Emphasized"
+            />
+        </Toolbar>
+        
+        <!-- Dynamic Project Panels -->
+        <VBox items="{/projectsData}">
+            <items>
+                <Panel expandable="true" expanded="true" headerText="{projectName}">
+                    <headerToolbar>
+                        <Toolbar>
+                            <Title text="{projectName}" level="H4"/>
+                            <ToolbarSpacer/>
+                            <ObjectStatus 
+                                text="{status}" 
+                                state="{path: 'status', formatter: '.formatProjectStatusState'}"
+                                class="sapUiSmallMarginEnd"/>
+                            <Text text="Assigned Employees: {= ${assignedEmployees}.length || 0 }"/>
+                        </Toolbar>
+                    </headerToolbar>
+                    
+                    <content>
+                        <!-- Assigned Employees Table -->
+                        <table:Table
+                            id="assignedEmployeesTable"
+                            rows="{path: 'assignedEmployees', templateShareable: false}"
+                            visibleRowCount="5"
+                            width="100%"
+                            class="sapUiSmallMarginTop">
+                            <table:columns>
+                                <table:Column width="30%">
+                                    <Label text="Employee Name"/>
+                                    <table:template>
+                                        <Text text="{employeeName}"/>
+                                    </table:template>
+                                </table:Column>
+                                
+                                <!-- <table:Column width="30%">
+                                    <Label text="Project"/>
+                                    <table:template>
+                                        <Text text="{path: '>projectName'}"/>
+                                    </table:template>
+                                </table:Column>
+                                
+                                <table:Column width="20%">
+                                    <Label text="Assigned Date"/>
+                                    <table:template>
+                                        <Text text="{path: 'assignmentDate', formatter: '.formatShortDate'}"/>
+                                    </table:template>
+                                </table:Column> -->
+                                
+                                <table:Column width="20%">
+                                    <Label text="Actions"/>
+                                    <table:template>
+                                        <Button 
+                                            text="Remove" 
+                                            type="Reject"
+                                            icon="sap-icon://delete"
+                                            press="onRemoveFromProject"
+                                            class="sapUiTinyMarginEnd"
+                                        />
+                                    </table:template>
+                                </table:Column>
+                            </table:columns>
+                        </table:Table>
+                    </content>
+                </Panel>
+            </items>
+        </VBox>
+    </ScrollContainer>
+</IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+    </Page>
+</mvc:View>
+
+
 UPDATED CODE 3
 <mvc:View
     xmlns:mvc="sap.ui.core.mvc"
