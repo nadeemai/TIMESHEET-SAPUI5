@@ -1,3 +1,484 @@
+UPDATED CODE 3
+
+<?xml version="1.0" encoding="UTF-8"?>
+<mvc:View
+    controllerName="employee.controller.Employee"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:table="sap.ui.table"
+    xmlns:f="sap.ui.layout.form"
+    displayBlock="true">
+    <Page id="mainPage" title="Weekly Timesheet" showHeader="true">
+        <headerContent>
+            <Button id="profileButton" icon="sap-icon://person-placeholder" tooltip="My Profile" press="onProfilePress" class="sapUiTinyMarginEnd"/>
+            <Button icon="sap-icon://activity-items"
+        press=".onOpenLeaveBalance"
+        tooltip="View Leave Balance"
+        type="Transparent" />
+            <Button id="settingsBtn" icon="sap-icon://information" tooltip="Settings" press="onSettingsPress"/>
+            <Button id="reportsBtn" icon="sap-icon://business-objects-experience" tooltip="View Reports" press="onViewReports"/>
+            <!-- <Button id="logoutBtn" icon="sap-icon://log" tooltip="Logout" press="onLogoutPress"/> -->
+        </headerContent>
+        <content>
+            <Toolbar id="_IDGenToolbar">
+                <ToolbarSpacer id="_IDGenToolbarSpacer"/>
+                <!-- <Label id="_IDGenLabel32" text="Total Hours:" class="sapUiSmallMarginEnd"/>
+                <Text id="_IDGenText24" text="{/totalWeekHours}" class="sapUiSmallMarginBegin"/> -->
+                <Button id="_IDGenButton7" icon="sap-icon://nav-back" press="onPreviousWeekTS"/>
+                <Button id="_IDGenButton8" icon="sap-icon://navigation-right-arrow" press="onNextWeekTS"/>
+                <Button id="_IDGenButton11" text="Today" press="onCurrentWeekTS"/>
+            </Toolbar>
+            <IconTabBar id="iconTabBar" select="onTabSelect" expanded="true">
+                <items>
+         <IconTabFilter id="timesheetTab" text="Timesheet" key="timesheet" icon="sap-icon://timesheet" iconColor="Critical">
+    <Panel headerText="Daily Time Entry" expandable="true" expanded="true">
+    <headerToolbar>
+      <Toolbar id="_IDGenToolbar2">
+      <Title text="Daily Time Entry"></Title>
+                  <ToolbarSpacer id="_IDGenToolbarSpacer2"/>
+                          <Button icon="sap-icon://nav-back" tooltip="Previous Week"
+                    press="onPreviousWeekTS" type="Default"
+                    class="sapUiTinyMarginEnd"/>
+ 
+            <Button text="Current Week" tooltip="Current Week"
+                    press="onCurrentWeekTS" type="Default"
+                    class="sapUiTinyMarginEnd"/>
+ 
+            <Button icon="sap-icon://navigation-right-arrow" tooltip="Next Week"
+                    press="onNextWeekTS" type="Default"
+                    class="sapUiTinyMarginEnd"/>
+                </Toolbar>
+                </headerToolbar>
+        <VBox class="sapUiSmallMargin">
+ 
+            <!-- Week Navigation with better spacing -->
+          <!-- ✨ Modern / Professional Week Navigation Bar ✨ -->
+<HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiLargeMarginBottom">
+ 
+    <!-- Page Title -->
+    <Title text="Log Your Work Hours" level="H3" class="sapUiTinyMarginBegin"/>
+ 
+    <!-- Navigation & Actions -->
+    <HBox alignItems="Center" class="sapUiTinyMarginEnd">
+ 
+        <!-- Week Navigation Buttons Group -->
+        <!-- <HBox class="sapUiTinyMarginEnd" alignItems="Center">
+            <Button icon="sap-icon://nav-back" tooltip="Previous Week"
+                    press="onPreviousWeekTS" type="Default"
+                    class="sapUiTinyMarginEnd"/>
+ 
+            <Button icon="sap-icon://present" tooltip="Current Week"
+                    press="onCurrentWeekTS" type="Emphasized"
+                    class="sapUiTinyMarginEnd"/>
+ 
+            <Button icon="sap-icon://navigation-right-arrow" tooltip="Next Week"
+                    press="onNextWeekTS" type="Default"
+                    class="sapUiTinyMarginEnd"/>
+        </HBox> -->
+ 
+        <!-- Date Picker with Calendar Icon -->
+        <DatePicker id="datePicker"
+                    displayFormat="MMM dd, YYYY"
+                    value="{timeEntryModel>/selectedDate}"
+                    change="onDatePickerChange"
+                    placeholder="Select Date"
+                    width="160px"
+                    class="sapUiTinyMarginEnd"/>
+ 
+        <!-- Record Time Button -->
+        <Button icon="sap-icon://add"
+                text="Record Time"
+                press="onAddEntry"
+                type="Emphasized"
+                class="sapUiTinyMarginEnd"/>
+<Button
+    text="PDF"
+    icon="sap-icon://download"
+    press=".onDownloadDocument">
+ 
+   
+ 
+</Button>
+ 
+ 
+ 
+ 
+    </HBox>
+</HBox>
+ 
+ 
+            <!-- Timesheet Table with improved styling -->
+           <Table
+    id="timesheetTable"
+    items="{path: 'timeEntryModel>/timeEntries'}"
+    class="sapUiSizeCompact"
+    alternateRowColors="true"
+    width="100%">
+ 
+    <columns>
+        <Column width="7em"><Text text="Project"/></Column>
+        <Column width="7em"><Text text="Task"/></Column>
+        <Column width="6em" hAlign="Center"><Text text="Details"/></Column>
+ 
+        <!-- Week Days -->
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Mon" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/mondayFormatted}"/>
+                 <ObjectStatus
+            id="_IDGenObjectStatusMon"
+            text="{timeEntryModel>/dailyTotals/monday}"
+            class="sapUiSmallMarginTop"
+            state="{= ${timeEntryModel>/dailyTotals/monday} >= 8 ? 'Success' : 'Error' }"/>
+ 
+            </VBox>
+        </Column>
+ 
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Tue" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/tuesdayFormatted}"/>
+                 <ObjectStatus
+            id="_IDGenObjectStatusTue"
+            class="sapUiSmallMarginTop"
+            text="{timeEntryModel>/dailyTotals/tuesday}"
+            state="{= ${timeEntryModel>/dailyTotals/tuesday} >= 8 ? 'Success' : 'Error' }"/>
+            </VBox>
+        </Column>
+ 
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Wed" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/wednesdayFormatted}"/>
+                 <ObjectStatus
+            id="_IDGenObjectStatusWed"
+            class="sapUiSmallMarginTop"
+            text="{timeEntryModel>/dailyTotals/wednesday}"
+            state="{= ${timeEntryModel>/dailyTotals/wednesday} >= 8 ? 'Success' : 'Error' }"/>
+            </VBox>
+        </Column>
+ 
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Thu" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/thursdayFormatted}"/>
+                 <ObjectStatus
+            id="_IDGenObjectStatusThu"
+            class="sapUiSmallMarginTop"
+            text="{timeEntryModel>/dailyTotals/thursday}"
+            state="{= ${timeEntryModel>/dailyTotals/thursday} >= 8 ? 'Success' : 'Error' }"/>
+            </VBox>
+        </Column>
+ 
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Fri" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/fridayFormatted}"/>
+                 <ObjectStatus
+            id="_IDGenObjectStatusFri"
+            class="sapUiSmallMarginTop"
+            text="{timeEntryModel>/dailyTotals/friday}"
+            state="{= ${timeEntryModel>/dailyTotals/friday} >= 8 ? 'Success' : 'Error' }"/>
+            </VBox>
+        </Column>
+ 
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Sat" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/saturdayFormatted}"/>
+                <ObjectStatus
+            id="_IDGenObjectStatusSat"
+            class="sapUiSmallMarginTop"
+            text="{timeEntryModel>/dailyTotals/saturday}"
+            state="{= ${timeEntryModel>/dailyTotals/saturday} >= 8 ? 'Success' : 'Error' }"/>
+            </VBox>
+        </Column>
+ 
+        <Column width="6em" hAlign="Center">
+            <VBox alignItems="Center">
+                <Label text="Sun" design="Bold"/>
+                <Text text="{timeEntryModel>/weekDates/sundayFormatted}"/>
+                 <ObjectStatus
+            id="_IDGenObjectStatusSun"
+            class="sapUiSmallMarginTop"
+            text="{timeEntryModel>/dailyTotals/sunday}"
+            state="{= ${timeEntryModel>/dailyTotals/sunday} >= 8 ? 'Success' : 'Error' }"/>
+            </VBox>
+        </Column>
+ 
+        <!-- Delete Action -->
+        <Column width="8em" hAlign="Center" class="sapUiSmallMarginTop">
+    <VBox alignItems="Center">
+        <Label text="" design="Bold"/>
+        <Text text="Total Hours"/>
+       <ObjectStatus
+        text="{timeEntryModel>/totalWeekHours}"
+         class="sapUiSmallMarginTop"
+        state="Success"  />
+    </VBox>
+</Column>
+ 
+   <Column width="3em" hAlign="Center" class="sapUiSmallMarginTop">
+    <VBox alignItems="Center">
+        <Label text="" design="Bold"/>
+        <Text text=""/>
+    </VBox>
+</Column>
+    </columns>
+ 
+    <items>
+        <ColumnListItem>
+            <cells>
+ 
+                <!-- Project -->
+                <Text text="{timeEntryModel>projectName}"/>
+ 
+                <!-- Task -->
+                <Text  
+    text="{timeEntryModel>workType}"  
+    class="{= ${timeEntryModel>isLeaveEntry} ? 'leaveText' : 'normalText' }"
+/>
+ 
+ 
+                <!-- Details Popup -->
+                <Button icon="sap-icon://detail-view" type="Transparent"
+                        press="onTaskDetailPress"/>
+ 
+                <!-- Daily hour buttons per row -->
+                <Button text="{timeEntryModel>mondayHours}"
+                   type="{= ${timeEntryModel>mondayIsLeave} ? 'Reject' : 'Default' }"
+                    press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="monday"/>
+                    </customData>
+                </Button>
+ 
+                <Button text="{timeEntryModel>tuesdayHours}"
+                    type="{= ${timeEntryModel>tuesdayIsLeave} ? 'Reject' : 'Default' }"                
+                    press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="tuesday"/>
+                    </customData>
+                </Button>
+ 
+               
+                <Button text="{timeEntryModel>wednesdayHours}"
+                type="{= ${timeEntryModel>wednesdayIsLeave} ? 'Reject' : 'Default' }"
+                press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="wednesday"/>
+                    </customData>
+                </Button>
+ 
+                <Button text="{timeEntryModel>thursdayHours}"
+                type="{= ${timeEntryModel>thursdayIsLeave} ? 'Reject' : 'Default' }"
+                 press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="thursday"/>
+                    </customData>
+                </Button>
+ 
+                <Button text="{timeEntryModel>fridayHours}"
+                type="{= ${timeEntryModel>fridayIsLeave} ? 'Reject' : 'Default' }"
+                   press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="friday"/>
+                    </customData>
+                </Button>
+ 
+                <Button text="{timeEntryModel>saturdayHours}"
+                 type="Attention"
+                        press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="saturday"/>
+                    </customData>
+                </Button>
+ 
+                <Button text="{timeEntryModel>sundayHours}" type="Attention"
+                        press="onEditDailyHours">
+                    <customData>
+                        <core:CustomData key="day" value="sunday"/>
+                    </customData>
+                </Button>
+ 
+               
+    <Text text="{timeEntryModel>totalWeekHours}"></Text>
+ 
+ 
+                <!-- Delete row -->
+                <Button icon="sap-icon://delete" type="Reject"
+                        visible="{timeEntryModel>canDelete}"
+                        press="onDeleteRows"/>
+            </cells>
+        </ColumnListItem>
+    </items>
+</Table>
+ 
+ 
+        </VBox>
+    </Panel>
+</IconTabFilter>
+               <IconTabFilter id="_IDGenIconTabFilter" text="Projects" key="projects" icon="sap-icon://background" iconColor="Positive">
+    <Panel id="_IDGenPanel" headerText="Assigned Projects" expandable="true" expanded="true">
+        <List id="projectsList" mode="SingleSelectMaster" items="{
+                path: 'assignedProjects>/assignedProjects'
+            }" selectionChange="onProjectSelect">
+            <StandardListItem
+                title="{assignedProjects>projectName}"      
+                description="Project Manager - {assignedProjects>managerName}"
+                info="{assignedProjects>status}"
+                infoState="{= ${assignedProjects>status} === 'Approved' ? 'Success' : ${assignedProjects>status} === 'On Hold' ? 'Warning' : 'Error' }"
+                type="Active"/>
+        </List>
+    </Panel>
+</IconTabFilter>
+                    <IconTabFilter id="_IDGenIconTabFilter3" text="Reports" key="reportsTab" icon="sap-icon://bar-chart" iconColor="Negative">
+                    <!-- Single Panel for all Reports -->
+                    <Panel id="reportsPanel" headerText="Project Analytics" expandable="true" expanded="true">
+                        <headerToolbar>
+                            <Toolbar id="_IDGenToolbar1">
+                                <Title id="_IDGenTitle12" text="Reports"/>
+                                <ToolbarSpacer id="_IDGenToolbarSpacer1"/>
+                                <Button id="refreshAnalyticsBtn" text="Refresh Data" icon="sap-icon://refresh" press="onRefreshAnalytics"/>
+                            </Toolbar>
+                        </headerToolbar>
+                        <content>
+                            <!-- Booked Hours Overview Table -->
+                            <Panel id="bookedHoursPanel" headerText="Booked Hours Overview" expandable="true" expanded="true">
+                                <Table id="bookedHoursTable" items="{bookedHoursModel>/employeeProjectHours}">
+                                    <columns>
+                                        <Column><Text text="Project"/></Column>
+                                        <Column><Text text="Allocated Hours"/></Column>
+                                        <Column><Text text="Booked Hours"/></Column>
+                                        <Column><Text text="Remaining Hours"/></Column>
+                                        <Column><Text text="Utilization"/></Column>
+                                    </columns>
+                                    <items>
+                                       <ColumnListItem>
+                                    <cells>
+                                        <Text text="{bookedHoursModel>Project}"/>
+                                        <Text text="{bookedHoursModel>AllocatedHours}"/>
+                                        <Text text="{bookedHoursModel>BookedHours}"/>
+                                        <Text text="{bookedHoursModel>RemainingHours}"/>
+                                          <ProgressIndicator id="_IDGenProgressIndicator"
+                                                displayValue="{bookedHoursModel>Utilization}%"
+                                                percentValue="{bookedHoursModel>Utilization}"
+                                                state="{= ${bookedHoursModel>Utilization} > 90 ? 'Error' : ${bookedHoursModel>Utilization} > 75 ? 'Warning' : 'Success' }"/>
+                                    </cells>
+                                </ColumnListItem>
+                             
+                                    </items>
+                                </Table>
+                            </Panel>
+                            
+                            <!-- Total Entry Reports Panel - Moved Below -->
+                            <Panel id="bookedHoursPanel2"
+                   headerText="Planning Reports"
+                   expandable="true"
+                   expanded="true">
+             
+                                <headerToolbar>
+                                    <Toolbar>
+                                        <Title text="Planning Reports"/>
+                                        <ToolbarSpacer/>
+                                        <Button text="Refresh Data" icon="sap-icon://refresh" press="onRefreshAnalytics"/>
+                                    </Toolbar>
+                                </headerToolbar>
+             
+                                <!-- Bind this table to entryModel -->
+                               <Table id="bookedHoursTable2" items="{entryModel>/employeeTotalEntry}">
+                                <columns>
+                                    <Column><Text text="Category"/></Column>
+                                    <Column><Text text="Week Start"/></Column>
+                                    <Column><Text text="Week End"/></Column>
+                                    <Column><Text text="Total Hours"/></Column>
+                                    <!-- <Column><Text text="Timesheet Count"/></Column> -->
+                                </columns>
+                                <items>
+                                   <ColumnListItem>
+    <cells>
+        <!-- CATEGORY -->
+        <Text text="{entryModel>category}"/>
+        
+        <!-- WEEK START with formatter -->
+        <Text text="{
+            path: 'entryModel>weekStartDate',
+            formatter: '.formatDateDisplay'
+        }"/>
+        
+        <!-- WEEK END with formatter -->
+        <Text text="{
+            path: 'entryModel>weekEndDate',
+            formatter: '.formatDateDisplay'
+        }"/>
+        
+        <!-- TOTAL HOURS with color coding -->
+        <ObjectStatus 
+            text="{entryModel>totalHours}"
+            state="{
+                path: 'entryModel>totalHours',
+                formatter: '.formatHoursState'
+            }"
+            class="sapUiSmallMarginTop"/>
+    </cells>
+</ColumnListItem>
+                                </items>
+                            </Table>
+                            </Panel>
+                            
+                            <!-- Project Engagement Duration Panel -->
+                            <Panel id="durationPanel" headerText="Project Engagement Duration" expandable="true" expanded="true">
+                               <Table id="durationTable" items="{durationModel>/employeeProjectDurations}">
+                                    <columns>
+                                        <Column><Text text="Project"/></Column>
+                                        <Column><Text text="Start Date"/></Column>
+                                        <Column><Text text="End Date"/></Column>
+                                        <Column><Text text="Duration (Days)"/></Column>
+                                        <Column><Text text="Days Remaining"/></Column>
+                                        <Column><Text text="Timeline Status"/></Column>
+                                    </columns>
+                                    <items>
+                                       <ColumnListItem>
+                                    <cells>
+                                        <Text text="{durationModel>Project}"/>
+                                        <Text text="{path: 'durationModel>StartDate', formatter: '.formatDateDisplay'}"/>
+                                        <Text text="{path: 'durationModel>EndDate', formatter: '.formatDateDisplay'}"/>
+                                        <Text text="{durationModel>Duration}"/>
+                                        <Text text="{durationModel>DaysRemaining}"/>
+                                        <ObjectStatus
+                                            text="{durationModel>TimelineStatus}"
+                                            state="{= ${durationModel>TimelineStatus} === 'Completed' ? 'Success' :
+                                                     ${durationModel>TimelineStatus} === 'On Track' ? 'Success' :
+                                                     ${durationModel>TimelineStatus} === 'At Risk' ? 'Warning' :
+                                                     ${durationModel>TimelineStatus} === 'Delayed' ? 'Error' : 'None' }"/>
+                                    </cells>
+                                </ColumnListItem>
+                             
+                                    </items>
+                                </Table>
+                            </Panel>
+                        </content>
+                    </Panel>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+        <footer>
+            <!-- <OverflowToolbar id="_IDGenOverflowToolbar">
+                <ToolbarSpacer id="_IDGenToolbarSpacer4"/>
+                <Button id="_IDGenButton17" text="Save Draft" type="Emphasized" press="onSaveDraft"/>
+                <Button id="_IDGenButton18" text="Submit for Approval" type="Accept" press="onSubmitApproval"/>
+            </OverflowToolbar> -->
+        </footer>
+    </Page>
+</mvc:View>
+
+
+
+
+
 UPDATED CODE 2
 
 <?xml version="1.0" encoding="UTF-8"?>
