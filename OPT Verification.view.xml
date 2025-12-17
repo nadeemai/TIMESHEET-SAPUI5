@@ -1,0 +1,36 @@
+<mvc:View
+    controllerName="employee.controller.OTPVerification"
+    xmlns:mvc="sap.ui.core.mvc"
+    displayBlock="true"
+    xmlns="sap.m">
+
+            <Page title="OTP Verification" id="otp-page" class="custom-scope">
+        <Panel class="sapUiResponsiveMargin boxcenter" accessibleRole="Region" width="auto">
+            <headerToolbar>
+            </headerToolbar>
+            
+            <content>   
+ 
+ 
+                    <VBox class="sapUiSmallMargin">
+                    <!-- <Label text="Registered Email ID :" />
+                    <Input id="SupplierEmail" value="{globalModel>/SupplierEmail}" editable="false" width="27rem"/> -->
+
+                    <Label id="otpCountdownLabel" text="OTP : (expires in 2:00)"  required="true" class="sapUiSmallMarginTop" />
+                    <HBox>
+                        <Input id="otpInput1" width="2rem" maxLength="1" liveChange="onOtpLiveChange" class="sapUiTinyMarginEnd" />
+                        <Input id="otpInput2" width="2rem" maxLength="1" liveChange="onOtpLiveChange" class="sapUiTinyMarginEnd" />
+                        <Input id="otpInput3" width="2rem" maxLength="1" liveChange="onOtpLiveChange" class="sapUiTinyMarginEnd" />
+                        <Input id="otpInput4" width="2rem" maxLength="1" liveChange="onOtpLiveChange" class="sapUiTinyMarginEnd" />
+                        <Input id="otpInput5" width="2rem" maxLength="1" liveChange="onOtpLiveChange" class="sapUiTinyMarginEnd" />
+                        <Input id="otpInput6" width="2rem" maxLength="1" liveChange="onOtpLiveChange" />
+                    </HBox>
+                    <HBox class="sapUiSmallMarginTop">
+                        <Button text="Validate" type="Default" press="onValidate" />
+                        <Button text="Resend" type="Default" press="reSendOTP" class="sapUiTinyMarginBegin" />
+                    </HBox>
+                </VBox>
+            </content>
+        </Panel>
+    </Page>
+</mvc:View>
