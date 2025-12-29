@@ -1,3 +1,93 @@
+UPDATED CODE 3
+
+<mvc:View
+    controllerName="employee.controller.OTPVerification"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    displayBlock="true"
+    height="100%">
+
+    <Page title="OTP Verification" showNavButton="false" class="sapUiContentPadding">
+        <content>
+            <VBox class="sapUiLargeMargin" alignItems="Center" justifyContent="Center" height="100%">
+                
+                <!-- Header Icon -->
+                <core:Icon 
+                    src="sap-icon://email" 
+                    size="5rem" 
+                    color="#0070f2" 
+                    class="sapUiMediumMarginBottom"/>
+
+                <Title text="Verify Your Email" level="H3" class="sapUiSmallMarginBottom"/>
+                
+                <Text 
+                    text="We've sent a 6-digit OTP to your registered email" 
+                    class="sapUiSmallMarginBottom" 
+                    textAlign="Center"
+                    width="300px"/>
+
+                <!-- Masked Email Display -->
+                <ObjectStatus
+                    text="{= ${globalModel>/maskedEmail} ? 'Sent to: ' + ${globalModel>/maskedEmail} : 'Loading...'}"
+                    state="{= ${globalModel>/maskedEmail} ? 'Success' : 'Information'}"
+                    class="sapUiMediumMarginBottom"/>
+
+                <!-- OTP Input -->
+                <Input
+                    id="otpInput"
+                    type="Number"
+                    placeholder="Enter OTP"
+                    maxLength="6"
+                    width="300px"
+                    textAlign="Center"
+                    liveChange="onOTPChange"
+                    value="{globalModel>/otp}"
+                    class="sapUiMediumMarginBottom"/>
+
+                <!-- Buttons -->
+                <HBox justifyContent="Center" class="sapUiMediumMarginBottom">
+                    <Button
+                        id="verifyButton"
+                        text="Verify OTP"
+                        type="Emphasized"
+                        press="onVerifyOTP"
+                        enabled="{= ${globalModel>/otp} &amp;&amp; ${globalModel>/otp}.length === 6 }"
+                        width="140px"/>
+                    
+                    <Button
+                        id="resendButton"
+                        text="Resend OTP"
+                        type="Transparent"
+                        press="onResendOTP"
+                        enabled="{globalModel>/canResend}"
+                        visible="{= ${globalModel>/maskedEmail} !== '' }"
+                        class="sapUiTinyMarginBegin"/>
+                </HBox>
+
+                <!-- Timer Text -->
+                <Text
+                    text="{= ${globalModel>/timeRemaining} > 0 ? 'Resend in ' + ${globalModel>/timeRemaining} + ' seconds' : '' }"
+                    visible="{= ${globalModel>/timeRemaining} > 0 }"
+                    class="sapUiSmallMarginBottom"
+                    textAlign="Center"/>
+
+                <!-- Message Area -->
+                <Text
+                    id="messageText"
+                    text="{globalModel>/message}"
+                    textAlign="Center"
+                    width="300px"
+                    class="{= ${globalModel>/messageType} === 'error' ? 'sapThemeCriticalText' : 'sapThemeSuccessText' }"
+                    visible="{= !!${globalModel>/message} }"/>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
+
+
+
+
 UPDATED CODE 2
 
 <mvc:View
